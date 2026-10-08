@@ -794,9 +794,12 @@ section:focus, article:focus, main:focus { outline: none; }
 .work-intro-layout { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(0,1fr); align-items: center; gap: 4%; }
 .work-intro-layout h2 { font-size: clamp(66px,7.3vw,112px); }
 .work-intro-layout h2 > span { padding-left: 3vw; }
-.projects-portrait { margin: 20px 0 0; position: relative; isolation: isolate; }
+.projects-portrait { margin: 20px 0 0; align-self: end; position: relative; isolation: isolate; }
 .projects-portrait::before { content: ''; position: absolute; inset: 8% 9% 6%; border: 1px solid var(--line); border-radius: 50%; z-index: -1; }
-.projects-portrait img { display: block; width: 100%; height: auto; border-radius: 48% 48% 8px 8px; }
+.projects-portrait img { display: block; width: 100%; height: auto; border-radius: 0; mix-blend-mode: multiply; }
+.projects-portrait::after { content: ''; position: absolute; inset: -18% -12%; background: radial-gradient(ellipse, var(--lime) 0%, transparent 68%); opacity: .32; filter: blur(32px); z-index: -2; pointer-events: none; }
+.about { isolation: isolate; overflow: clip; }
+.about::before { content: ''; position: absolute; width: min(760px, 90%); aspect-ratio: 1; left: -8%; top: -8%; background: radial-gradient(ellipse, var(--lime) 0%, transparent 68%); opacity: .16; filter: blur(45px); z-index: -1; pointer-events: none; }
 .work-end { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0,1.25fr); gap: 8%; align-items: center; text-align: left; padding-block: 75px; }
 .closing-portrait { position: relative; width: 100%; max-width: 350px; aspect-ratio: 1; margin: 0; justify-self: center; isolation: isolate; }
 .closing-portrait::before { content: ''; position: absolute; inset: -15px; border: 1px solid #c3f34c45; border-radius: 50%; }
@@ -813,21 +816,51 @@ section:focus, article:focus, main:focus { outline: none; }
   .work-end { gap: 7%; }
   .work-end-copy > p { font-size: 6.5vw; }
 }
-@media(max-width:600px) {
-  .ticker-group { gap: 24px; padding-right: 24px; }
-  .work-intro-layout { grid-template-columns: 1fr; gap: 0; }
+@media(max-width:700px) {
+  .work-intro-layout { grid-template-columns: 1fr; gap: 28px; }
   .work-intro-layout h2 { font-size: 16vw; }
   .work-intro-layout h2 > span { padding-left: 2.5vw; }
-  .projects-portrait { width: 67%; max-width: 260px; justify-self: end; margin: -8px 0 22px; }
-  .work-intro-layout .work-intro-bottom { margin-bottom: 22px; }
+  .projects-portrait { width: 82%; max-width: 340px; justify-self: end; margin: 0; }
+  .work-intro-layout .work-intro-bottom { margin-bottom: 0; }
+}
+@media(max-width:600px) {
+  .ticker-group { gap: 24px; padding-right: 24px; }
   .work-end { grid-template-columns: minmax(0,.65fr) minmax(0,1.35fr); gap: 22px; padding-block: 55px; }
   .closing-portrait::before { inset: -7px; }
   .work-end-copy > span { font-size: 7px; line-height: 1.5; display: block; }
   .work-end-copy > p { font-size: clamp(29px,7.5vw,45px); margin-block: 15px; }
   .work-end-copy .text-link { font-size: 12px; gap: 12px; }
 }
+/* Give every chapter title its own centered row on narrow screens. */
+@media(max-width:700px) {
+  .chapter-title-wrap { grid-template-columns: minmax(0,1fr); gap: 24px; padding-block: 30px 36px; }
+  .chapter-number { justify-self: center; align-self: center; font-size: 76px; line-height: 1; }
+  .chapter-title-wrap h3, .theme-blast .chapter-title-wrap h3, .theme-indie .chapter-title-wrap h3 { width: 100%; min-width: 0; text-align: center; line-height: .98; transform: none; overflow-wrap: normal; }
+  .chapter-title-wrap h3 { font-size: clamp(46px,14.5vw,94px); }
+  .theme-blast .chapter-title-wrap h3 { font-size: clamp(64px,20vw,130px); }
+  .theme-indie .chapter-title-wrap h3 { font-size: clamp(34px,9.8vw,64px); }
+  .chapter-symbol { position: absolute; right: 6px; top: 30px; }
+  .chapter-symbol svg { width: 24px; height: 24px; }
+}
 @media(prefers-reduced-motion:reduce) {
   .ticker > .ticker-track { animation: none; }
   .portrait-wink { animation: none; }
+}
+
+/* Broad lime light stays behind the artwork and within each editorial band. */
+.work-end, .layout-reels { position: relative; isolation: isolate; overflow: clip; }
+.layout-social { overflow: clip; }
+.chapter-opening::before, .layout-social::before, .layout-reels::before, .work-end::before {
+  content: ''; position: absolute; inset: -15%; width: auto; height: auto;
+  background: radial-gradient(ellipse at 18% 55%, var(--lime), transparent 48%), radial-gradient(ellipse at 85% 25%, var(--lime), transparent 45%);
+  opacity: .13; filter: blur(48px); z-index: -1; pointer-events: none;
+}
+.work-end::before { opacity: .2; }
+.layout-social::before { opacity: .11; }
+.about::before { opacity: .22; }
+.closing-portrait::after { inset: -25%; background: radial-gradient(ellipse, var(--lime), transparent 68%); opacity: .2; filter: blur(40px); }
+.software { background-image: radial-gradient(ellipse at 95% 60%, #c3f34c18, transparent 55%); }
+@media(max-width:700px) {
+  .chapter-opening::before, .layout-social::before, .layout-reels::before, .work-end::before { filter: blur(32px); }
 }
 
