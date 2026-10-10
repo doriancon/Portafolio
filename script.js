@@ -87,6 +87,49 @@
     return `<section class="software section-pad" id="habilidades" aria-labelledby="software-title"><div class="software-heading"><span class="eyebrow">EL OFICIO / LAS HERRAMIENTAS</span><h2 id="software-title">Software</h2></div><div class="software-bars">${data.software.map((s, i) => `<div class="software-entry"><span class="app-icon" aria-hidden="true">${softwareIcon(s.mark)}</span><div class="software-track-wrap"><div class="software-name"><h3>${esc(s.name)}</h3><span aria-hidden="true">0${i + 1}</span></div><div class="software-track" role="meter" aria-label="Manejo de ${esc(s.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${s.level}"><span class="software-fill" style="--level:${s.level}%;--delay:${i * 100}ms"></span></div></div></div>`).join('')}</div></section>`;
   }
 
+  function additional() {
+    const apps = [['Meta Ads', 'meta.png'], ['GHL', 'ghl.png'], ['ChatGPT', 'chatgpt.png'], ['Codex', 'codex.png'], ['Google Analytics', 'googleanalytics.svg'], ['Google Ads', 'google-ads.png'], ['WordPress', 'wordpress.png']];
+    const item = ([name, file], repeat) => `<figure class="additional-app${repeat ? ' additional-repeat' : ''}" ${repeat ? 'aria-hidden="true"' : 'role="listitem"'}><div class="additional-logo"><img src="assets/apps/${file}" alt="" width="96" height="96" decoding="async"></div><figcaption>${name}</figcaption></figure>`;
+    const group = duplicate => `<div class="additional-group" ${duplicate ? 'aria-hidden="true"' : 'role="list"'}>${apps.map(app => item(app, false)).join('')}${apps.map(app => item(app, true)).join('')}</div>`;
+    return `<section class="additional section-pad" id="adicional" aria-labelledby="additional-title"><h2 id="additional-title">ADICIONAL</h2><div class="additional-window"><div class="additional-track">${group(false)}${group(true)}</div></div></section>`;
+  }
+
+  function setupAdditionalMotion() {
+    const viewport = main.querySelector('.additional-window');
+    const track = viewport.querySelector('.additional-track');
+    const group = track.firstElementChild;
+    let offset = 0, speed = 0, hovering = false, visible = false, frame = 0, previous = 0;
+    const hover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    function tick(time) {
+      frame = 0;
+      if (motion.matches || !visible || document.hidden) { previous = 0; return; }
+      const dt = previous ? Math.min((time - previous) / 1000, .05) : 0;
+      previous = time;
+      const target = hovering ? 0 : 34;
+      speed += (target - speed) * (1 - Math.exp(-dt * 7));
+      offset = (offset + speed * dt) % group.getBoundingClientRect().width;
+      track.style.transform = `translate3d(${-offset}px,0,0)`;
+      frame = requestAnimationFrame(tick);
+    }
+    function sync() {
+      cancelAnimationFrame(frame); previous = 0;
+      if (motion.matches) { offset = 0; speed = 0; track.style.transform = ''; }
+      else if (visible && !document.hidden) frame = requestAnimationFrame(tick);
+    }
+    viewport.addEventListener('pointerenter', () => { hovering = hover.matches; });
+    viewport.addEventListener('pointerleave', () => { hovering = false; });
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }).observe(viewport);
+    motion.addEventListener('change', sync);
+    document.addEventListener('visibilitychange', sync);
+  }
+
+  function setupLanguage() {
+    const language = window.PortfolioI18n;
+    if (!language) return;
+    document.querySelectorAll('[data-language-toggle]').forEach(button => button.addEventListener('click', () => language.set(language.current === 'es' ? 'en' : 'es')));
+    language.apply();
+  }
+
   function contact() {
     return `<section class="contact contact-editorial section-pad" id="contacto" aria-labelledby="contact-title"><div class="contact-heading"><h2 id="contact-title">${esc(data.copy.contactTitle)}</h2><span aria-hidden="true">${star}</span></div><dl class="contact-directory"><div><dt>EMAIL</dt><dd><a href="mailto:${esc(data.profile.email)}">${esc(data.profile.email)} ${arrow}</a></dd></div><div><dt>TELÉFONO</dt><dd><a href="tel:${esc(data.profile.phone.replace(/\s/g,''))}">${esc(data.profile.phone)} ${arrow}</a></dd></div><div><dt>LINKEDIN</dt><dd><a href="${safeURL(data.profile.links.LinkedIn)}" target="_blank" rel="noopener noreferrer">LinkedIn ${arrow}</a></dd></div><div><dt>UBICACIÓN</dt><dd>${esc(data.profile.location)}</dd></div></dl></section>`;
   }
@@ -97,11 +140,13 @@
     main.innerHTML = `<section class="hero" id="inicio"><div class="hero-topline"><span>PORTFOLIO CREATIVO / 2026</span><span>${esc(p.location)} <i class="location-dot"></i></span></div><div class="hero-composition"><div class="hero-type"><h1><span class="last-name">PORTAFOLIO</span></h1><div class="hero-disciplines">PUBLICIDAD / MARKETING</div><p class="hero-byline">${esc(p.firstName)} ${esc(p.lastName)} · 2026</p></div><div class="portrait-stage"><div class="hero-halo" aria-hidden="true"></div><div class="portrait-orbit"></div><img class="hero-portrait" src="${safeURL(p.illustration)}" alt="Ilustración editorial de ${esc(p.shortName)}" fetchpriority="high"><span class="hello-sticker">¡HEY, SOY<br>DORIAN! ${star}</span><span class="creative-note">pensar la marca.<br>llevarla a cada pantalla.</span></div><div class="hero-caption"><p>${esc(p.headline)}</p><a class="button button-dark" href="#proyectos">Ver mi trabajo ${arrow}</a></div><span class="hero-spark">${star}</span></div><div class="hero-bottom"><span>${esc(p.profession)}</span><a href="#proyectos">Las ideas, en acción <span aria-hidden="true">↓</span></a></div></section>
       <div class="ticker" aria-label="Marketing, publicidad, contenido y estrategia"><div class="ticker-track" aria-hidden="true">${Array(2).fill('<div class="ticker-group">'+Array(3).fill(['MARKETING', 'PUBLICIDAD', 'CONTENIDO', 'ESTRATEGIA'].map(x => '<span>'+x+'</span>'+star).join('')).join('')+'</div>').join('')}</div></div>
       <section class="about section-pad" id="sobre-mi"><div class="about-heading"><p class="eyebrow">DETRÁS DE LAS IDEAS</p><h2 class="reveal">${esc(data.copy.aboutTitle)}</h2><figure class="about-photo"><img src="${safeURL(p.photo)}" alt="Dorian en un paseo junto al mar" loading="lazy" decoding="async"><figcaption>PUBLICISTA · MARKETING · BUENOS AIRES ${arrow}</figcaption></figure></div><div class="about-copy"><p class="large-copy">${esc(p.intro)}</p><p>${esc(p.about)}</p><p>${esc(p.aboutMore)}</p><a class="text-link" href="${safeURL(p.cv)}" download>Descargar mi CV ${arrow}</a><div class="education"><span>FORMACIÓN</span><p>${esc(data.education.degree)}<small>${esc(data.education.school)}<br>${esc(data.education.period)}</small></p></div><div class="languages"><span>IDIOMAS</span><dl>${data.languages.map(l=>`<div><dt>${esc(l.name)}</dt><dd>${esc(l.level)}</dd></div>`).join('')}</dl></div></div></section>
-      ${software()}${projects()}
+      ${software()}${additional()}${projects()}
       <section class="experience section-pad" id="experiencia"><div class="section-heading"><div><p class="eyebrow">EL RECORRIDO DETRÁS DEL TRABAJO</p><h2>${esc(data.copy.experienceTitle)}</h2></div><p>Marcas y equipos<br>con los que crecí.</p></div><div class="experience-list">${data.experience.map(x => `<details><summary><span class="experience-period">${esc(x.period)}</span><span class="experience-name">${esc(x.company)}<small>${esc(x.role)}</small></span><span class="expand-icon" aria-hidden="true"></span></summary><div class="experience-details"><ul>${x.details.slice(0, 3).map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></details>`).join('')}</div></section>${contact()}`;
     setupImagePreview();
     attachMediaErrors();
     setupMotion();
+    setupAdditionalMotion();
+    setupLanguage();
   }
 
   function setupImagePreview() {
